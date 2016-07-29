@@ -1,6 +1,44 @@
 /**
- * Created by scherk01 on 26.07.2016.
+ * Parse all query paramters
+ * @returns {Object}
  */
+function getQueryParams() {
+    var result = {};
+
+    var data = decodeURIComponent(window.location.href);
+    var start = data.indexOf('?');
+
+    if (start == -1) return result;
+
+    data = data.substr(start + 1, data.length - start).split('&');
+    for (var i = 0; i < data.length; i++) {
+        var t = data[i].split('='),
+            name = t[0],
+            val = t[1];
+
+        name = name.replace('][', '.').replace('[', '.').replace(']', '');
+        var names = name.split('.');
+
+        var node = result;
+        for (var j = 0; j < names.length; j++) {
+            if (node[names[j]] == undefined) {
+                if (j + 1 == names.length) node[names[j]] = val;
+                else node[names[j]] = {};
+            }
+            node = node[names[j]];
+        }
+    }
+    return result;
+}
+
+/**
+ * Get value of query parameter by name
+ * @param {String} name
+ * @returns {Object|null}
+ */
+function getQueryParam(name) {
+    return getQueryParams()[name] || null;
+}
 
 // Functions from http://youmightnotneedjquery.com/
 
