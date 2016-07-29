@@ -1,5 +1,5 @@
 /**
- * Parse all query paramters
+ * Parse all query parameters
  * @returns {Object}
  */
 function getQueryParams() {
