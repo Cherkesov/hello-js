@@ -51,7 +51,7 @@ function getQueryParam(name) {
 function addEventListener(el, eventName, handler) {
     if (el.addEventListener) {
         el.addEventListener(eventName, handler);
-    } else {
+    } else if (el.attachEvent) {
         el.attachEvent('on' + eventName, function () {
             handler.call(el);
         });
@@ -67,7 +67,7 @@ function addEventListener(el, eventName, handler) {
 function removeEventListener(el, eventName, handler) {
     if (el.removeEventListener)
         el.removeEventListener(eventName, handler);
-    else
+    else if (el.detachEvent)
         el.detachEvent('on' + eventName, handler);
 }
 
