@@ -3,6 +3,7 @@
  */
 
 var TO_RADIANS = Math.PI / 180;
+var TO_DEGREES = 180 / Math.PI;
 
 var canvasEl = document.getElementById('canvas'),
     ctx = canvasEl.getContext('2d'),
@@ -47,7 +48,9 @@ saveImageEl.addEventListener('click', function (e) {
 
 
 $(function () {
-    var oldPositionX = 0,
+    var
+        oldRotation = 0,
+        oldPositionX = 0,
         oldPositionY = 0,
         oldScaleX = 1,
         oldScaleY = 1,
@@ -57,19 +60,29 @@ $(function () {
     var angle = 15 * TO_RADIANS;
     $rotateLeftEl.click(function () {
         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-        // oldScaleX += Math.cos(-angle); // TODO: wrong calc
-        oldSkewingX += Math.sin(-angle);
-        oldSkewingY -= Math.sin(-angle);
-        // oldScaleY += Math.cos(-angle); // TODO: wrong calc
+        oldRotation += angle;
+        var angle_sine = Math.sin(oldRotation),
+            angle_cosine = Math.cos(oldRotation);
+
+        oldScaleX = angle_cosine;
+        oldSkewingX = angle_sine;
+        oldSkewingY = -angle_sine;
+        oldScaleY = angle_cosine;
+
         ctx.setTransform(oldScaleX, oldSkewingX, oldSkewingY, oldScaleY, oldPositionX, oldPositionY);
         ctx.drawImage(currImage, 0, 0);
     });
     $rotateRightEl.click(function () {
         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-        // oldScaleX += Math.cos(angle); // TODO: wrong calc
-        oldSkewingX += Math.sin(angle);
-        oldSkewingY -= Math.sin(angle);
-        // oldScaleY += Math.cos(angle); // TODO: wrong calc
+        oldRotation -= angle;
+        var angle_sine = Math.sin(oldRotation),
+            angle_cosine = Math.cos(oldRotation);
+
+        oldScaleX = angle_cosine;
+        oldSkewingX = angle_sine;
+        oldSkewingY = -angle_sine;
+        oldScaleY = angle_cosine;
+
         ctx.setTransform(oldScaleX, oldSkewingX, oldSkewingY, oldScaleY, oldPositionX, oldPositionY);
         ctx.drawImage(currImage, 0, 0);
     });
