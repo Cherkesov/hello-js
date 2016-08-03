@@ -47,86 +47,98 @@ saveImageEl.addEventListener('click', function (e) {
 });
 
 
+function Context2DManipulator(ctx, currImage) {
+    this.ctx = ctx;
+    this.currImage = currImage;
+
+    this.oldRotation = 0;
+    this.oldPositionX = 0;
+    this.oldPositionY = 0;
+    this.oldScaleX = 1;
+    this.oldScaleY = 1;
+    this.oldSkewingX = 0;
+    this.oldSkewingY = 0;
+
+    this.translate = function (tX, tY) {
+        this.oldPositionX += tX;
+        this.oldPositionY += tY;
+        this.ctx.setTransform(
+            this.oldScaleX, this.oldSkewingX, this.oldSkewingY, this.oldScaleY,
+            this.oldPositionX, this.oldPositionY
+        );
+        this.ctx.drawImage(this.currImage, 0, 0);
+    };
+
+    this.rotate = function (angle) {
+        this.oldRotation -= angle;
+        var angle_sine = Math.sin(this.oldRotation),
+            angle_cosine = Math.cos(this.oldRotation);
+
+        this.oldScaleX = angle_cosine;
+        this.oldSkewingX = angle_sine;
+        this.oldSkewingY = -angle_sine;
+        this.oldScaleY = angle_cosine;
+
+        this.ctx.setTransform(
+            this.oldScaleX, this.oldSkewingX, this.oldSkewingY, this.oldScaleY,
+            this.oldPositionX, this.oldPositionY
+        );
+        this.ctx.drawImage(this.currImage, 0, 0);
+    };
+
+    this.scale = function (sX, sY) {
+        this.oldScaleX *= sX;
+        this.oldScaleY *= sY;
+        this.ctx.setTransform(
+            this.oldScaleX, this.oldSkewingX, this.oldSkewingY, this.oldScaleY,
+            this.oldPositionX, this.oldPositionY
+        );
+        this.ctx.drawImage(this.currImage, 0, 0);
+    };
+
+    return this;
+}
+
+
 $(function () {
-    var
-        oldRotation = 0,
-        oldPositionX = 0,
-        oldPositionY = 0,
-        oldScaleX = 1,
-        oldScaleY = 1,
-        oldSkewingX = 0,
-        oldSkewingY = 0;
+    var manipulator = new Context2DManipulator(ctx, currImage);
 
     var angle = 15 * TO_RADIANS;
     $rotateLeftEl.click(function () {
         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-        oldRotation += angle;
-        var angle_sine = Math.sin(oldRotation),
-            angle_cosine = Math.cos(oldRotation);
-
-        oldScaleX = angle_cosine;
-        oldSkewingX = angle_sine;
-        oldSkewingY = -angle_sine;
-        oldScaleY = angle_cosine;
-
-        ctx.setTransform(oldScaleX, oldSkewingX, oldSkewingY, oldScaleY, oldPositionX, oldPositionY);
-        ctx.drawImage(currImage, 0, 0);
+        manipulator.rotate(angle);
     });
     $rotateRightEl.click(function () {
         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-        oldRotation -= angle;
-        var angle_sine = Math.sin(oldRotation),
-            angle_cosine = Math.cos(oldRotation);
-
-        oldScaleX = angle_cosine;
-        oldSkewingX = angle_sine;
-        oldSkewingY = -angle_sine;
-        oldScaleY = angle_cosine;
-
-        ctx.setTransform(oldScaleX, oldSkewingX, oldSkewingY, oldScaleY, oldPositionX, oldPositionY);
-        ctx.drawImage(currImage, 0, 0);
+        manipulator.rotate(-angle);
     });
 
     var translateSpeed = 50;
     $translateTopEl.click(function () {
         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-        oldPositionY -= translateSpeed;
-        ctx.setTransform(oldScaleX, oldSkewingX, oldSkewingY, oldScaleY, oldPositionX, oldPositionY);
-        ctx.drawImage(currImage, 0, 0);
+        manipulator.translate(0, -translateSpeed);
     });
     $translateRightEl.click(function () {
         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-        oldPositionX += translateSpeed;
-        ctx.setTransform(oldScaleX, oldSkewingX, oldSkewingY, oldScaleY, oldPositionX, oldPositionY);
-        ctx.drawImage(currImage, 0, 0);
+        manipulator.translate(translateSpeed, 0);
     });
     $translateBottomEl.click(function () {
         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-        oldPositionY += translateSpeed;
-        ctx.setTransform(oldScaleX, oldSkewingX, oldSkewingY, oldScaleY, oldPositionX, oldPositionY);
-        ctx.drawImage(currImage, 0, 0);
+        manipulator.translate(0, translateSpeed);
     });
     $translateLeftEl.click(function () {
         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-        oldPositionX -= translateSpeed;
-        ctx.setTransform(oldScaleX, oldSkewingX, oldSkewingY, oldScaleY, oldPositionX, oldPositionY);
-        ctx.drawImage(currImage, 0, 0);
+        manipulator.translate(-translateSpeed, 0);
     });
 
     var scaleCoef = 0.1;
     $scaleIncreaseEl.click(function () {
         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-        oldScaleX *= 1 + scaleCoef;
-        oldScaleY *= 1 + scaleCoef;
-        ctx.setTransform(oldScaleX, oldSkewingX, oldSkewingY, oldScaleY, oldPositionX, oldPositionY);
-        ctx.drawImage(currImage, 0, 0);
+        manipulator.scale(1 + scaleCoef, 1 + scaleCoef);
     });
     $scaleDecreaseEl.click(function () {
         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-        oldScaleX /= 1 + scaleCoef;
-        oldScaleY /= 1 + scaleCoef;
-        ctx.setTransform(oldScaleX, oldSkewingX, oldSkewingY, oldScaleY, oldPositionX, oldPositionY);
-        ctx.drawImage(currImage, 0, 0);
+        manipulator.scale(1 - scaleCoef, 1 - scaleCoef);
     });
 
 
@@ -143,10 +155,7 @@ $(function () {
             var movementX = event.pageX - mouseOldX;
             var movementY = event.pageY - mouseOldY;
 
-            oldPositionX += movementX;
-            oldPositionY += movementY;
-            ctx.setTransform(oldScaleX, oldSkewingX, oldSkewingY, oldScaleY, oldPositionX, oldPositionY);
-            ctx.drawImage(currImage, 0, 0);
+            manipulator.translate(movementX, movementY);
 
             mouseOldX = event.pageX;
             mouseOldY = event.pageY;
