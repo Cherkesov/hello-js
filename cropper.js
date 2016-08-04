@@ -51,49 +51,38 @@ function Context2DManipulator(ctx, currImage) {
     this.ctx = ctx;
     this.currImage = currImage;
 
-    this.oldRotation = 0;
     this.oldPositionX = 0;
     this.oldPositionY = 0;
     this.oldScaleX = 1;
     this.oldScaleY = 1;
     this.oldSkewingX = 0;
     this.oldSkewingY = 0;
+    this.angle = 0;
+
+    this.show = function(){
+        this.ctx.save();
+        this.ctx.translate(this.oldPositionX, this.oldPositionY);
+        this.ctx.rotate(this.angle);
+        this.ctx.scale(this.oldScaleX,this.oldScaleY);
+        this.ctx.drawImage(this.currImage, 0, 0);
+        this.ctx.restore();
+    };
 
     this.translate = function (tX, tY) {
         this.oldPositionX += tX;
         this.oldPositionY += tY;
-        this.ctx.setTransform(
-            this.oldScaleX, this.oldSkewingX, this.oldSkewingY, this.oldScaleY,
-            this.oldPositionX, this.oldPositionY
-        );
-        this.ctx.drawImage(this.currImage, 0, 0);
+        this.show();
     };
 
     this.rotate = function (angle) {
-        this.oldRotation -= angle;
-        var angle_sine = Math.sin(this.oldRotation),
-            angle_cosine = Math.cos(this.oldRotation);
-
-        this.oldScaleX = angle_cosine;
-        this.oldSkewingX = angle_sine;
-        this.oldSkewingY = -angle_sine;
-        this.oldScaleY = angle_cosine;
-
-        this.ctx.setTransform(
-            this.oldScaleX, this.oldSkewingX, this.oldSkewingY, this.oldScaleY,
-            this.oldPositionX, this.oldPositionY
-        );
-        this.ctx.drawImage(this.currImage, 0, 0);
+        this.angle += angle;
+        this.show();
     };
 
     this.scale = function (sX, sY) {
         this.oldScaleX *= sX;
         this.oldScaleY *= sY;
-        this.ctx.setTransform(
-            this.oldScaleX, this.oldSkewingX, this.oldSkewingY, this.oldScaleY,
-            this.oldPositionX, this.oldPositionY
-        );
-        this.ctx.drawImage(this.currImage, 0, 0);
+        this.show();
     };
 
     return this;
@@ -152,6 +141,8 @@ $(function () {
         mouseOldY = event.pageY;
     }).mousemove(function (event) {
         if (movement) {
+            ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+
             var movementX = event.pageX - mouseOldX;
             var movementY = event.pageY - mouseOldY;
 
