@@ -5,32 +5,13 @@
 var TO_RADIANS = Math.PI / 180;
 var TO_DEGREES = 180 / Math.PI;
 
-var canvasEl = document.getElementById('canvas'),
-    ctx = canvasEl.getContext('2d'),
-    $rotateLeftEl = $('#rotate_l'),
-    $rotateRightEl = $('#rotate_r'),
-    $translateTopEl = $('#translate_t'),
-    $translateRightEl = $('#translate_r'),
-    $translateBottomEl = $('#translate_b'),
-    $translateLeftEl = $('#translate_l'),
-    $scaleIncreaseEl = $('#scale_inc'),
-    $scaleDecreaseEl = $('#scale_dec'),
-    saveImageEl = document.getElementById('saveImage');
-
-
-saveImageEl.addEventListener('click', function (e) {
-    var dataURL = canvasEl.toDataURL('image/jpeg');
-    var blob = dataURItoBlob(dataURL);
-    var fd = new FormData(document.forms[0]);
-    fd.append('image[binaryContent]', blob, 'thumb.jpg');
-    fd.append('description', '');
-
-    ajaxPost('http://fair-wildcat-4550.vagrantshare.com/app_dev.php/api/work/', fd, function (e) {
-        console.log(JSON.parse(this.responseText));
-    });
-});
-
-
+/**
+ * You can control your context with classic methods
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {Object} options
+ * @returns {Context2DManipulator}
+ * @constructor
+ */
 function Context2DManipulator(ctx, options) {
     this.ctx = ctx;
     this.options = options;
@@ -73,13 +54,25 @@ function Context2DManipulator(ctx, options) {
 
 
 $(function () {
+    var canvasEl = document.getElementById('canvas'),
+        ctx = canvasEl.getContext('2d'),
+        $rotateLeftEl = $('#rotate_l'),
+        $rotateRightEl = $('#rotate_r'),
+        $translateTopEl = $('#translate_t'),
+        $translateRightEl = $('#translate_r'),
+        $translateBottomEl = $('#translate_b'),
+        $translateLeftEl = $('#translate_l'),
+        $scaleIncreaseEl = $('#scale_inc'),
+        $scaleDecreaseEl = $('#scale_dec');
+
+
     var currImage = new Image();
     var manipulator = new Context2DManipulator(ctx, {
         image: currImage,
         rect: {x: 0, y: 0, width: 100, height: 100}
     });
 
-    $('#inputImage').on('change', function (e) {
+    $('#inputImage').on('change', function () {
         if (this.files && this.files[0]) {
             var file = this.files[0];
             var fr = new FileReader();
@@ -92,6 +85,18 @@ $(function () {
             fr.readAsDataURL(file);
         }
     });
+
+    /*$('#saveImage').click(function () {
+        var dataURL = canvasEl.toDataURL('image/jpeg');
+        var blob = dataURItoBlob(dataURL);
+        var fd = new FormData(document.forms[0]);
+        fd.append('image[binaryContent]', blob, 'thumb.jpg');
+        fd.append('description', '');
+
+        ajaxPost('http://fair-wildcat-4550.vagrantshare.com/app_dev.php/api/work/', fd, function () {
+            console.log(JSON.parse(this.responseText));
+        });
+    });*/
 
     var angle = 15 * TO_RADIANS;
     $rotateLeftEl.click(function () {
