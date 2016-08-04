@@ -7,7 +7,6 @@ var TO_DEGREES = 180 / Math.PI;
 
 var canvasEl = document.getElementById('canvas'),
     ctx = canvasEl.getContext('2d'),
-    inputImageEl = document.getElementById('inputImage'),
     $rotateLeftEl = $('#rotate_l'),
     $rotateRightEl = $('#rotate_r'),
     $translateTopEl = $('#translate_t'),
@@ -18,21 +17,6 @@ var canvasEl = document.getElementById('canvas'),
     $scaleDecreaseEl = $('#scale_dec'),
     saveImageEl = document.getElementById('saveImage');
 
-var currImage = new Image();
-
-inputImageEl.addEventListener('change', function (e) {
-    if (this.files && this.files[0]) {
-        var file = this.files[0];
-        var fr = new FileReader();
-        fr.onload = function (e) {
-            currImage.onload = function () {
-                ctx.drawImage(currImage, 0, 0);
-            };
-            currImage.src = e.target.result;
-        };
-        fr.readAsDataURL(file);
-    }
-});
 
 saveImageEl.addEventListener('click', function (e) {
     var dataURL = canvasEl.toDataURL('image/jpeg');
@@ -47,42 +31,41 @@ saveImageEl.addEventListener('click', function (e) {
 });
 
 
-function Context2DManipulator(ctx, currImage) {
+function Context2DManipulator(ctx, options) {
     this.ctx = ctx;
-    this.currImage = currImage;
+    this.options = options;
 
     this.oldPositionX = 0;
     this.oldPositionY = 0;
     this.oldScaleX = 1;
     this.oldScaleY = 1;
-    this.oldSkewingX = 0;
-    this.oldSkewingY = 0;
     this.angle = 0;
 
-    this.show = function(){
+    this.render = function () {
         this.ctx.save();
         this.ctx.translate(this.oldPositionX, this.oldPositionY);
         this.ctx.rotate(this.angle);
-        this.ctx.scale(this.oldScaleX,this.oldScaleY);
-        this.ctx.drawImage(this.currImage, 0, 0);
+        this.ctx.scale(this.oldScaleX, this.oldScaleY);
+        var rect = this.options.rect;
+        this.ctx.drawImage(this.options.image, rect.x, rect.y, rect.width, rect.height);
         this.ctx.restore();
     };
 
     this.translate = function (tX, tY) {
         this.oldPositionX += tX;
         this.oldPositionY += tY;
-        this.show();
+        this.render();
     };
 
     this.rotate = function (angle) {
         this.angle += angle;
-        this.show();
+        this.render();
     };
 
     this.scale = function (sX, sY) {
         this.oldScaleX *= sX;
         this.oldScaleY *= sY;
-        this.show();
+        this.render();
     };
 
     return this;
@@ -90,7 +73,25 @@ function Context2DManipulator(ctx, currImage) {
 
 
 $(function () {
-    var manipulator = new Context2DManipulator(ctx, currImage);
+    var currImage = new Image();
+    var manipulator = new Context2DManipulator(ctx, {
+        image: currImage,
+        rect: {x: 0, y: 0, width: 100, height: 100}
+    });
+
+    $('#inputImage').on('change', function (e) {
+        if (this.files && this.files[0]) {
+            var file = this.files[0];
+            var fr = new FileReader();
+            fr.onload = function (e) {
+                currImage.onload = function () {
+                    manipulator.render();
+                };
+                currImage.src = e.target.result;
+            };
+            fr.readAsDataURL(file);
+        }
+    });
 
     var angle = 15 * TO_RADIANS;
     $rotateLeftEl.click(function () {
