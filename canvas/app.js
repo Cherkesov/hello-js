@@ -44,10 +44,12 @@ function Context2DManipulator(ctx, options) {
     };
 
     this.rotateAroundCenter = function (angle) {
-        var iw = this.options.image.width * this.oldScaleX,
-            ih = this.options.image.height * this.oldScaleY,
-            len = Math.sqrt(Math.pow(iw / 2, 2) + Math.pow(ih / 2, 2)),
-            dA = Math.atan2(ih / 2, iw / 2),
+        var im = this.options.image,
+            r = this.options.rect,
+            iw = this.oldScaleX * im.width,
+            ih = this.oldScaleY * im.height,
+            len = Math.sqrt(Math.pow(r.x+ iw / 2, 2) + Math.pow(r.y+ih / 2, 2)),
+            dA = Math.atan2(r.y+ih / 2, r.x+ iw / 2),
             ocX = this.oldPositionX + len * Math.cos(this.angle + dA),
             ocY = this.oldPositionY + len * Math.sin(this.angle + dA),
             ncX = this.oldPositionX + len * Math.cos(this.angle + dA + angle),
@@ -97,7 +99,7 @@ $(function () {
                 currImage.onload = function () {
                     manipulator = new Context2DManipulator(ctx, {
                         image: currImage,
-                        rect: {x: 0, y: 0, width: currImage.width, height: currImage.height}
+                        rect: {x: 50, y: 50, width: currImage.width, height: currImage.height}
                     });
                     manipulator.render();
                 };
