@@ -43,6 +43,15 @@ function Context2DManipulator(ctx, options) {
         this.render();
     };
 
+    this.rotateAround = function (angle, pX, pY) {
+        this.angle += angle;
+
+        // this.oldPositionX += Math.cos(this.angle) * pX / 2;
+        // this.oldPositionY += Math.sin(this.angle) * pY / 2;
+
+        this.render();
+    };
+
     this.scale = function (sX, sY) {
         this.oldScaleX *= sX;
         this.oldScaleY *= sY;
@@ -69,7 +78,7 @@ $(function () {
     var currImage = new Image();
     var manipulator = new Context2DManipulator(ctx, {
         image: currImage,
-        rect: {x: 0, y: 0, width: 100, height: 100}
+        rect: {x: 0, y: 0, width: currImage.width, height: currImage.height}
     });
 
     $('#inputImage').on('change', function () {
@@ -78,6 +87,10 @@ $(function () {
             var fr = new FileReader();
             fr.onload = function (e) {
                 currImage.onload = function () {
+                    manipulator = new Context2DManipulator(ctx, {
+                        image: currImage,
+                        rect: {x: 0, y: 0, width: currImage.width, height: currImage.height}
+                    });
                     manipulator.render();
                 };
                 currImage.src = e.target.result;
@@ -87,25 +100,25 @@ $(function () {
     });
 
     /*$('#saveImage').click(function () {
-        var dataURL = canvasEl.toDataURL('image/jpeg');
-        var blob = dataURItoBlob(dataURL);
-        var fd = new FormData(document.forms[0]);
-        fd.append('image[binaryContent]', blob, 'thumb.jpg');
-        fd.append('description', '');
+     var dataURL = canvasEl.toDataURL('image/jpeg');
+     var blob = dataURItoBlob(dataURL);
+     var fd = new FormData(document.forms[0]);
+     fd.append('image[binaryContent]', blob, 'thumb.jpg');
+     fd.append('description', '');
 
-        ajaxPost('http://fair-wildcat-4550.vagrantshare.com/app_dev.php/api/work/', fd, function () {
-            console.log(JSON.parse(this.responseText));
-        });
-    });*/
+     ajaxPost('http://fair-wildcat-4550.vagrantshare.com/app_dev.php/api/work/', fd, function () {
+     console.log(JSON.parse(this.responseText));
+     });
+     });*/
 
     var angle = 15 * TO_RADIANS;
     $rotateLeftEl.click(function () {
         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-        manipulator.rotate(angle);
+        manipulator.rotateAround(angle, currImage.width / 2, currImage.height / 2);
     });
     $rotateRightEl.click(function () {
         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-        manipulator.rotate(-angle);
+        manipulator.rotateAround(-angle, currImage.width / 2, currImage.height / 2);
     });
 
     var translateSpeed = 50;
