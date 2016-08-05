@@ -43,12 +43,21 @@ function Context2DManipulator(ctx, options) {
         this.render();
     };
 
-    this.rotateAround = function (angle, pX, pY) {
+    this.rotateAroundCenter = function (angle) {
+        var len = Math.sqrt(
+                Math.pow(this.options.image.width / 2, 2)
+                + Math.pow(this.options.image.height / 2, 2)
+            ),
+            dA = Math.atan2(this.options.image.height / 2, this.options.image.width / 2),
+            ocX = this.oldPositionX + len * Math.cos(this.angle + dA),
+            ocY = this.oldPositionY + len * Math.sin(this.angle + dA),
+            ncX = this.oldPositionX + len * Math.cos(this.angle + dA + angle),
+            ncY = this.oldPositionY + len * Math.sin(this.angle + dA + angle);
+
+        this.oldPositionX += ocX - ncX;
+        this.oldPositionY += ocY - ncY;
+
         this.angle += angle;
-
-        // this.oldPositionX += Math.cos(this.angle) * pX / 2;
-        // this.oldPositionY += Math.sin(this.angle) * pY / 2;
-
         this.render();
     };
 
@@ -114,11 +123,11 @@ $(function () {
     var angle = 15 * TO_RADIANS;
     $rotateLeftEl.click(function () {
         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-        manipulator.rotateAround(angle, currImage.width / 2, currImage.height / 2);
+        manipulator.rotateAroundCenter(-angle, currImage.width / 2, currImage.height / 2);
     });
     $rotateRightEl.click(function () {
         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-        manipulator.rotateAround(-angle, currImage.width / 2, currImage.height / 2);
+        manipulator.rotateAroundCenter(angle, currImage.width / 2, currImage.height / 2);
     });
 
     var translateSpeed = 50;
