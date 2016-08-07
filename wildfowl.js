@@ -11,24 +11,6 @@ function getUri() {
  * @returns {Object}
  */
 function getQueryParams() {
-
-    /*var setData = function (obj, keys, val) {
-     if (keys.length > 1) {
-     setData(obj[keys[0]], keys.slice(1, keys.length), val);
-     } else {
-     if (obj[keys[0]].push != undefined) {
-     obj[keys[0]].push(val);
-     } else if (typeof obj[keys[0]] == 'string') {
-     var tmp = obj[keys[0]];
-     obj[keys[0]] = [];
-     obj[keys[0]].push(tmp);
-     obj[keys[0]].push(val);
-     } else {
-     obj[keys[0]] = val;
-     }
-     }
-     };*/
-
     var result = {};
 
     var data = decodeURIComponent(window.location.href);
