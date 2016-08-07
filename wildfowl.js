@@ -1,4 +1,12 @@
 /**
+ * Get URI (without schema, host-name, query params and hash)
+ * @returns {string}
+ */
+function getUri() {
+    return window.location.pathname.substr(1);
+}
+
+/**
  * Parse all query parameters
  * @returns {Object}
  */
