@@ -12,22 +12,22 @@ function getUri() {
  */
 function getQueryParams() {
 
-    var setData = function (obj, keys, val) {
-        if (keys.length > 1) {
-            setData(obj[keys[0]], keys.slice(1, keys.length), val);
-        } else {
-            if (obj[keys[0]].push != undefined) {
-                obj[keys[0]].push(val);
-            } else if (typeof obj[keys[0]] == 'string') {
-                var tmp = obj[keys[0]];
-                obj[keys[0]] = [];
-                obj[keys[0]].push(tmp);
-                obj[keys[0]].push(val);
-            } else {
-                obj[keys[0]] = val;
-            }
-        }
-    };
+    /*var setData = function (obj, keys, val) {
+     if (keys.length > 1) {
+     setData(obj[keys[0]], keys.slice(1, keys.length), val);
+     } else {
+     if (obj[keys[0]].push != undefined) {
+     obj[keys[0]].push(val);
+     } else if (typeof obj[keys[0]] == 'string') {
+     var tmp = obj[keys[0]];
+     obj[keys[0]] = [];
+     obj[keys[0]].push(tmp);
+     obj[keys[0]].push(val);
+     } else {
+     obj[keys[0]] = val;
+     }
+     }
+     };*/
 
     var result = {};
 
@@ -45,33 +45,28 @@ function getQueryParams() {
         name = name.replace('][', '.').replace('[', '.').replace(']', '');
         var names = name.split('.');
 
-        //console.log(names);
-
         var node = result;
-        var tmpNames = [];
+        //var tmpNames = [];
         for (var j = 0; j < names.length; j++) {
+            var key = names[j] != '' ? names[j] : node.length;
             if (names[j] != '') {
-                if (node[names[j]] == undefined) {
-                    node[names[j]] = {};
-                    tmpNames.push(names[j]);
-                    //console.log('Create node:' + tmpNames.join('->'));
+                key = names[j];
+                if (node[key] == undefined) {
+                    node[key] = [];
                 }
-                node = node[names[j]];
-            } else {
-                node = [];
-            }
-
-            if (j + 1 == names.length) {
-                if (names[j] != '') {
-                    node = val;
-                    setData(result, names, val);
-                } else {
-                    //setData(result, names.slice(0, j), val);
-                    setData(result, names.slice(0, j), val);
+                if (j + 1 == names.length) {
+                    node[key] = val;
                 }
+            } else  {
+                key = node.length;
+                if (node == undefined) {
+                    node = [];
+                }
+                node.push(val);
             }
-
-            //node = node[names[j]];
+            //tmpNames.push(key);
+            //console.log('Create node:' + tmpNames.join('->'));
+            node = node[key];
         }
     }
     return result;
