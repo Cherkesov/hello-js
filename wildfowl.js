@@ -11,6 +11,24 @@ function getUri() {
  * @returns {Object}
  */
 function getQueryParams() {
+
+    var setData = function (obj, keys, val) {
+        if (keys.length > 1) {
+            setData(obj[keys[0]], keys.slice(1, keys.length), val);
+        } else {
+            if (obj[keys[0]].push != undefined) {
+                obj[keys[0]].push(val);
+            } else if (typeof obj[keys[0]] == 'string') {
+                var tmp = obj[keys[0]];
+                obj[keys[0]] = [];
+                obj[keys[0]].push(tmp);
+                obj[keys[0]].push(val);
+            } else {
+                obj[keys[0]] = val;
+            }
+        }
+    };
+
     var result = {};
 
     var data = decodeURIComponent(window.location.href);
@@ -27,13 +45,33 @@ function getQueryParams() {
         name = name.replace('][', '.').replace('[', '.').replace(']', '');
         var names = name.split('.');
 
+        //console.log(names);
+
         var node = result;
+        var tmpNames = [];
         for (var j = 0; j < names.length; j++) {
-            if (node[names[j]] == undefined) {
-                if (j + 1 == names.length) node[names[j]] = val;
-                else node[names[j]] = {};
+            if (names[j] != '') {
+                if (node[names[j]] == undefined) {
+                    node[names[j]] = {};
+                    tmpNames.push(names[j]);
+                    //console.log('Create node:' + tmpNames.join('->'));
+                }
+                node = node[names[j]];
+            } else {
+                node = [];
             }
-            node = node[names[j]];
+
+            if (j + 1 == names.length) {
+                if (names[j] != '') {
+                    node = val;
+                    setData(result, names, val);
+                } else {
+                    //setData(result, names.slice(0, j), val);
+                    setData(result, names.slice(0, j), val);
+                }
+            }
+
+            //node = node[names[j]];
         }
     }
     return result;
@@ -46,6 +84,17 @@ function getQueryParams() {
  */
 function getQueryParam(name) {
     return getQueryParams()[name] || null;
+}
+
+/**
+ * Remove repeated elements
+ * @param {Array} arr
+ * @returns {Array}
+ */
+function removeDuplicatesFromArr(arr) {
+    return arr.filter(function (item, pos, self) {
+        return self.indexOf(item) == pos;
+    });
 }
 
 // Functions from http://youmightnotneedjquery.com/
