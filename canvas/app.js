@@ -43,6 +43,27 @@ function Context2DManipulator(ctx, options) {
         this.render();
     };
 
+    this.rotateAroundCenter = function (angle) {
+        var im = this.options.image,
+            r = this.options.rect,
+            iw = this.oldScaleX * im.width,
+            ih = this.oldScaleY * im.height,
+            sw = this.oldScaleX * r.x,
+            sh = this.oldScaleY * r.y,
+            len = Math.sqrt(Math.pow(sw + iw / 2, 2) + Math.pow(sh + ih / 2, 2)),
+            dA = Math.atan2(sh + ih / 2, sw + iw / 2),
+            ocX = this.oldPositionX + len * Math.cos(this.angle + dA),
+            ocY = this.oldPositionY + len * Math.sin(this.angle + dA),
+            ncX = this.oldPositionX + len * Math.cos(this.angle + dA + angle),
+            ncY = this.oldPositionY + len * Math.sin(this.angle + dA + angle);
+
+        this.oldPositionX += ocX - ncX;
+        this.oldPositionY += ocY - ncY;
+
+        this.angle += angle;
+        this.render();
+    };
+
     this.scale = function (sX, sY) {
         this.oldScaleX *= sX;
         this.oldScaleY *= sY;
@@ -69,7 +90,7 @@ $(function () {
     var currImage = new Image();
     var manipulator = new Context2DManipulator(ctx, {
         image: currImage,
-        rect: {x: 0, y: 0, width: 100, height: 100}
+        rect: {x: 0, y: 0, width: currImage.width, height: currImage.height}
     });
 
     $('#inputImage').on('change', function () {
@@ -78,6 +99,10 @@ $(function () {
             var fr = new FileReader();
             fr.onload = function (e) {
                 currImage.onload = function () {
+                    manipulator = new Context2DManipulator(ctx, {
+                        image: currImage,
+                        rect: {x: 50, y: 50, width: currImage.width, height: currImage.height}
+                    });
                     manipulator.render();
                 };
                 currImage.src = e.target.result;
@@ -87,25 +112,25 @@ $(function () {
     });
 
     /*$('#saveImage').click(function () {
-        var dataURL = canvasEl.toDataURL('image/jpeg');
-        var blob = dataURItoBlob(dataURL);
-        var fd = new FormData(document.forms[0]);
-        fd.append('image[binaryContent]', blob, 'thumb.jpg');
-        fd.append('description', '');
+     var dataURL = canvasEl.toDataURL('image/jpeg');
+     var blob = dataURItoBlob(dataURL);
+     var fd = new FormData(document.forms[0]);
+     fd.append('image[binaryContent]', blob, 'thumb.jpg');
+     fd.append('description', '');
 
-        ajaxPost('http://fair-wildcat-4550.vagrantshare.com/app_dev.php/api/work/', fd, function () {
-            console.log(JSON.parse(this.responseText));
-        });
-    });*/
+     ajaxPost('http://fair-wildcat-4550.vagrantshare.com/app_dev.php/api/work/', fd, function () {
+     console.log(JSON.parse(this.responseText));
+     });
+     });*/
 
     var angle = 15 * TO_RADIANS;
     $rotateLeftEl.click(function () {
         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-        manipulator.rotate(angle);
+        manipulator.rotateAroundCenter(-angle, currImage.width / 2, currImage.height / 2);
     });
     $rotateRightEl.click(function () {
         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-        manipulator.rotate(-angle);
+        manipulator.rotateAroundCenter(angle, currImage.width / 2, currImage.height / 2);
     });
 
     var translateSpeed = 50;
