@@ -3,7 +3,7 @@
  * @returns {string}
  */
 function getUri() {
-    return window.location.pathname.substr(1);
+    return '/' + window.location.pathname.substr(1);
 }
 
 /**
