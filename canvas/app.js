@@ -111,9 +111,10 @@ $(function () {
         }
     });
 
-    /*$('#saveImage').click(function () {
-     var dataURL = canvasEl.toDataURL('image/jpeg');
-     var blob = dataURItoBlob(dataURL);
+    $('#saveImage').click(function () {
+     // var dataURL = canvasEl.toDataURL('image/jpeg');
+     // var blob = dataURItoBlob(dataURL);
+     var blob = canvasEl.wfGetBlobImage();
      var fd = new FormData(document.forms[0]);
      fd.append('image[binaryContent]', blob, 'thumb.jpg');
      fd.append('description', '');
@@ -121,7 +122,7 @@ $(function () {
      ajaxPost('http://fair-wildcat-4550.vagrantshare.com/app_dev.php/api/work/', fd, function () {
      console.log(JSON.parse(this.responseText));
      });
-     });*/
+     });
 
     var angle = 15 * TO_RADIANS;
     $rotateLeftEl.click(function () {
