@@ -20,6 +20,8 @@ function getQueryParams() {
 
     data = data.substr(start + 1, data.length - start).split('&');
     for (var i = 0; i < data.length; i++) {
+        if (data[i] == '') continue;
+
         var t = data[i].split('='),
             name = t[0],
             val = t[1];
